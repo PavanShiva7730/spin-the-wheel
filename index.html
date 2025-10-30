@@ -1,4 +1,4 @@
-<!-- Testbook Spin & Win with Sound -->
+<!-- Testbook Spin & Win (FINAL with Pointer Fix) -->
 <div id="tb-spin" style="max-width:520px;margin:40px auto;text-align:center;">
   <style>
     #tb-spin * { box-sizing: border-box; }
@@ -65,7 +65,6 @@
     <div id="tb-result" class="tb-result"></div>
   </div>
 
-  <!-- ✅ Popup -->
   <div id="tb-pop" class="tb-pop" role="dialog" aria-modal="true">
     <div class="tb-pop-card">
       <button class="tb-x" type="button" aria-label="Close">✖</button>
@@ -80,11 +79,6 @@
     </div>
   </div>
 
-  <!-- 🔊 Sounds -->
-  <audio id="spin-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wheel-spin-2014.mp3"></audio>
-  <audio id="win-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
-
-  <!-- 🔁 JS -->
   <script>
     (function(){
       const APP_LINK = "https://testbook.test-app.link/SUPERPASS_NEWS";
@@ -96,15 +90,18 @@
         { text: "✨ Enrol in any Coaching with ₹1", color: "#3B82F6" }
       ];
 
+      const BRAND_COLORS = { blue:"#0A5FFF", teal:"#04C46B", red:"#e11d48" };
+
       function run(){
-        const canvas = document.getElementById("tb-wheel");
-        const spinBtn = document.getElementById("tb-spin-btn");
-        const result = document.getElementById("tb-result");
-        const popup = document.getElementById("tb-pop");
-        const rewardEl = document.getElementById("tb-reward-text");
-        const closeBtn = document.querySelector(".tb-x");
-        const spinSound = document.getElementById("spin-sound");
-        const winSound = document.getElementById("win-sound");
+        const root = document.getElementById("tb-spin");
+        const canvas = root.querySelector("#tb-wheel");
+        const spinBtn = root.querySelector("#tb-spin-btn");
+        const result = root.querySelector("#tb-result");
+        const popup = root.querySelector("#tb-pop");
+        const rewardEl = root.querySelector("#tb-reward-text");
+        const closeBtn = root.querySelector(".tb-x");
+        const cta = root.querySelector("#tb-cta");
+        cta.href = APP_LINK;
 
         const ctx = canvas.getContext("2d");
         const dpr = window.devicePixelRatio || 1;
@@ -180,8 +177,6 @@
         function startSpin() {
           if (spinning) return;
           spinning = true;
-          spinSound.currentTime = 0;
-          spinSound.play();
           result.textContent = "";
           result.style.color = "#1e293b";
           spinBtn.disabled = true;
@@ -190,15 +185,14 @@
         }
 
         function finish() {
+          // ✅ FIXED POINTER-TO-REWARD ALIGNMENT LOGIC
           const adjusted = (rotation + Math.PI / 2) % (2 * Math.PI);
           const norm = (2 * Math.PI - adjusted) % (2 * Math.PI);
           const idx = Math.floor(norm / slice);
           const prize = SEGMENTS[idx];
 
-          winSound.currentTime = 0;
-          winSound.play();
-
           result.textContent = "You won: " + prize.text;
+          result.style.color = BRAND_COLORS.teal;
           rewardEl.textContent = prize.text;
           popup.classList.add("show");
           spinBtn.disabled = false;
