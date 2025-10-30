@@ -1,110 +1,62 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f3f4f6;
-}
+const prizes = [
+  "🎓 100% Free Coaching",
+  "🎁 ₹500 Amazon Coupon",
+  "📚 Free Study Material",
+  "💰 ₹500 Cashback",
+  "✨ Coaching @ ₹1"
+];
 
-.container {
-  width: 100%;
-  max-width: 350px;
-  margin: 20px auto;
-  padding: 10px;
-  text-align: center;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  position: relative;
-}
+const wheel = document.getElementById("wheel");
+const spinBtn = document.getElementById("spinBtn");
+const popup = document.getElementById("popup");
+const popupText = document.getElementById("popupText");
 
-.wheel-wrapper {
-  position: relative;
-  margin-bottom: 20px;
-}
+let deg = 0;
 
-#wheel {
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
+function drawWheel() {
+  const ctx = wheel.getContext("2d");
+  const segmentAngle = 360 / prizes.length;
 
-#pointer {
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 25px solid #ef4444;
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-
-#spinBtn {
-  width: 100%;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  background-color: #6366f1;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  position: sticky;
-  bottom: 0;
-}
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.popup-content {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 30px 20px;
-  max-width: 320px;
-  width: 90%;
-  text-align: center;
-  box-shadow: 0 0 25px rgba(0,0,0,0.2);
-  animation: popIn 0.4s ease;
-}
-
-.popup-logo {
-  width: 140px;
-  margin-bottom: 20px;
-}
-
-.popup-button {
-  display: inline-block;
-  margin-top: 15px;
-  background: #22c55e;
-  color: white;
-  padding: 12px 24px;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 6px;
-}
-
-.hidden {
-  display: none;
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
+  for (let i = 0; i < prizes.length; i++) {
+    const start = (segmentAngle * i) * Math.PI / 180;
+    const end = (segmentAngle * (i + 1)) * Math.PI / 180;
+    ctx.beginPath();
+    ctx.moveTo(150, 150);
+    ctx.arc(150, 150, 150, start, end);
+    ctx.fillStyle = i % 2 === 0 ? "#818cf8" : "#a5b4fc";
+    ctx.fill();
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate((start + end) / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText(prizes[i], 130, 10);
+    ctx.restore();
   }
 }
+drawWheel();
+
+spinBtn.addEventListener("click", () => {
+  spinBtn.disabled = true;
+
+  const segmentAngle = 360 / prizes.length;
+  const randomIndex = Math.floor(Math.random() * prizes.length);
+  const stopDeg = 360 - (randomIndex * segmentAngle) - segmentAngle / 2;
+  const totalSpins = 6;
+  deg += totalSpins * 360 + stopDeg;
+
+  wheel.style.transition = "transform 5s ease-out";
+  wheel.style.transform = `rotate(${deg}deg)`;
+
+  setTimeout(() => {
+    popupText.textContent = `🎉 You won: ${prizes[randomIndex]} 🎉`;
+    popup.classList.remove("hidden");
+    spinBtn.disabled = false;
+  }, 5000);
+});
+
+// Close popup on outside click
+popup.addEventListener("click", () => {
+  popup.classList.add("hidden");
+});
