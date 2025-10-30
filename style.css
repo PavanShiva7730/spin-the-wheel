@@ -1,65 +1,62 @@
-/* style.css */
 body {
-  background: linear-gradient(45deg, #e0f7fa, #f3e5f5);
-  font-family: sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+  background: linear-gradient(135deg, #dbeafe, #ede9fe);
+  font-family: 'Segoe UI', sans-serif;
   margin: 0;
+  padding: 20px;
 }
-.logo {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 160px;
-}
-.wheel-container {
-  position: relative;
+.wheel-wrapper {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
   text-align: center;
+  position: relative;
 }
 #wheel {
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
 #pointer {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 30px solid red;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 25px solid #ef4444;
   position: absolute;
-  top: -30px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
 }
 #spinBtn {
-  margin-top: 20px;
-  padding: 10px 30px;
-  font-size: 18px;
-  background: #673ab7;
+  margin-top: 16px;
+  padding: 10px 25px;
+  font-size: 16px;
+  background: #6d28d9;
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
 }
 .download-btn {
   margin-top: 20px;
   display: inline-block;
-  background: #4caf50;
+  background: #22c55e;
   color: #fff;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 6px;
   text-decoration: none;
 }
 #result {
   margin-top: 20px;
-  background: #fff;
-  padding: 20px;
-  border: 2px solid #4caf50;
+  background: #ffffff;
+  border: 2px solid #9333ea;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 16px;
   font-weight: bold;
-  font-size: 18px;
+}
+.popup-logo {
+  width: 140px;
+  margin-bottom: 12px;
 }
 .hidden {
   display: none;
