@@ -1,0 +1,66 @@
+/* style.css */
+body {
+  background: linear-gradient(45deg, #e0f7fa, #f3e5f5);
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 160px;
+}
+.wheel-container {
+  position: relative;
+  text-align: center;
+}
+#wheel {
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+#pointer {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 30px solid red;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#spinBtn {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 18px;
+  background: #673ab7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.download-btn {
+  margin-top: 20px;
+  display: inline-block;
+  background: #4caf50;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+}
+#result {
+  margin-top: 20px;
+  background: #fff;
+  padding: 20px;
+  border: 2px solid #4caf50;
+  font-weight: bold;
+  font-size: 18px;
+}
+.hidden {
+  display: none;
+}
