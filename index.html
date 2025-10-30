@@ -4,19 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Spin the Wheel - Testbook</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="wheel-wrapper">
-    <div id="pointer"></div>
-    <canvas id="wheel" width="300" height="300"></canvas>
+  <div class="container">
+    <div class="wheel-wrapper">
+      <div id="pointer"></div>
+      <canvas id="wheel" width="300" height="300"></canvas>
+    </div>
+
     <button id="spinBtn">Spin the Wheel</button>
-    <div id="result" class="hidden">
-      <img src="https://testbook.com/news/wp-content/uploads/2025/09/Testbook-Logo-2048x410.png" alt="Testbook Logo" class="popup-logo"/>
-      <p id="resultText"></p>
-      <a href="https://testbook.test-app.link/SUPERPASS_NEWS" target="_blank" class="download-btn">Download Testbook App</a>
+  </div>
+
+  <div id="popup" class="popup hidden">
+    <div class="popup-content">
+      <img src="https://testbook.com/news/wp-content/uploads/2025/09/Testbook-Logo-2048x410.png" class="popup-logo" alt="Testbook" />
+      <p id="popupText"></p>
+      <a href="https://testbook.test-app.link/SUPERPASS_NEWS" class="popup-button" target="_blank">Download Testbook App</a>
     </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
