@@ -9,6 +9,8 @@ const prizes = [
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spinBtn");
 const result = document.getElementById("result");
+const resultText = document.getElementById("resultText");
+
 let deg = 0;
 
 function drawWheel() {
@@ -19,17 +21,17 @@ function drawWheel() {
     const start = (segmentAngle * i) * Math.PI / 180;
     const end = (segmentAngle * (i + 1)) * Math.PI / 180;
     ctx.beginPath();
-    ctx.moveTo(200, 200);
-    ctx.arc(200, 200, 200, start, end);
-    ctx.fillStyle = i % 2 === 0 ? "#ba68c8" : "#7986cb";
+    ctx.moveTo(150, 150);
+    ctx.arc(150, 150, 150, start, end);
+    ctx.fillStyle = i % 2 === 0 ? "#a78bfa" : "#818cf8";
     ctx.fill();
     ctx.save();
-    ctx.translate(200, 200);
+    ctx.translate(150, 150);
     ctx.rotate((start + end) / 2);
     ctx.textAlign = "right";
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 14px sans-serif";
-    ctx.fillText(prizes[i], 180, 10);
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText(prizes[i], 130, 10);
     ctx.restore();
   }
 }
@@ -38,15 +40,18 @@ drawWheel();
 spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
   result.classList.add("hidden");
+
   const randomIndex = Math.floor(Math.random() * prizes.length);
-  const extra = Math.floor(Math.random() * 360);
-  const totalSpins = 5;
-  deg += totalSpins * 360 + (360 - randomIndex * (360 / prizes.length));
+  const segmentAngle = 360 / prizes.length;
+  const stopDeg = 360 - (randomIndex * segmentAngle) - segmentAngle / 2;
+  const totalSpins = 6;
+  deg += totalSpins * 360 + stopDeg;
+
   wheel.style.transition = "transform 6s ease-out";
   wheel.style.transform = `rotate(${deg}deg)`;
 
   setTimeout(() => {
-    result.textContent = `🎉 You won: ${prizes[randomIndex]} 🎉`;
+    resultText.textContent = `🎉 You won: ${prizes[randomIndex]} 🎉`;
     result.classList.remove("hidden");
     spinBtn.disabled = false;
   }, 6000);
