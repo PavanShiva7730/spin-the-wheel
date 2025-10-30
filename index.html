@@ -1,106 +1,176 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Spin & Win</title>
-</head>
-<body>
-
+<!-- Testbook Spin & Win with Sound -->
 <div id="tb-spin" style="max-width:520px;margin:40px auto;text-align:center;">
-  <!-- CSS same as before (shortened for clarity) -->
-  <!-- Keep all styles same from previous version -->
+  <style>
+    #tb-spin * { box-sizing: border-box; }
+    #tb-spin .tb-card {
+      background:#fff;border-radius:20px;padding:28px 22px;
+      box-shadow:0 18px 50px rgba(0,0,0,.12);
+    }
+    #tb-spin .tb-title {
+      color:#0A5FFF;font:700 28px/1.2 system-ui; margin:4px 0 6px;
+    }
+    #tb-spin .tb-sub {
+      color:#64748B;font:500 15px/1.6 system-ui;
+    }
+    #tb-spin .tb-wheel-wrap{position:relative;width:min(420px,86vw);height:min(420px,86vw);margin:20px auto;}
+    #tb-spin canvas{display:block;margin:0 auto;filter:drop-shadow(0 8px 26px rgba(0,0,0,.15));}
+    #tb-spin .tb-pointer{
+      position:absolute;left:50%;top:-14px;transform:translateX(-50%);
+      width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:32px solid #e11d48;
+      filter:drop-shadow(0 2px 6px rgba(225,29,72,.35));z-index:2;
+    }
+    #tb-spin .tb-btn {
+      background:linear-gradient(135deg,#0A5FFF 0%,#0047CC 100%);
+      color:#fff;border:none;border-radius:999px;padding:14px 38px;
+      font:800 18px/1 system-ui;letter-spacing:.2px;cursor:pointer;
+      box-shadow:0 8px 22px rgba(10,95,255,.35);transition:transform .15s ease,box-shadow .15s ease; margin-top:14px;
+    }
+    #tb-spin .tb-btn:hover:not([disabled]){transform:translateY(-1px);box-shadow:0 10px 28px rgba(10,95,255,.45);}
+    #tb-spin .tb-btn[disabled]{opacity:.55;cursor:not-allowed;}
+    #tb-spin .tb-result{min-height:26px;margin-top:12px;font:700 16px/1.4 system-ui}
+    #tb-spin .tb-pop{display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.72);
+      align-items:center;justify-content:center;padding:16px;}
+    #tb-spin .tb-pop.show{display:flex;animation:tbFade .25s ease;}
+    #tb-spin .tb-pop-card{
+      width:min(460px,92vw);background:#fff;border-radius:16px;padding:28px 22px;text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.28);position:relative;animation:tbPop .35s cubic-bezier(.2,.8,.2,1);
+    }
+    #tb-spin .tb-x{position:absolute;top:8px;right:10px;border:none;background:transparent;color:#64748B;
+      font:700 20px/1 system-ui;cursor:pointer}
+    #tb-spin .tb-pop-title{color:#0A5FFF;font:800 26px/1.2 system-ui;margin:8px 0}
+    #tb-spin .tb-reward{display:inline-block;background:linear-gradient(135deg,#04C46B 0%,#059669 100%);
+      color:#fff;border-radius:12px;padding:12px 18px;font:800 18px/1.2 system-ui;margin:12px 0;box-shadow:0 6px 18px rgba(4,196,107,.35)}
+    #tb-spin .tb-desc{color:#475569;font:500 15px/1.6 system-ui;margin:10px auto 18px;max-width:36ch}
+    #tb-spin .tb-cta{
+      display:inline-block;background:linear-gradient(135deg,#04C46B 0%,#059669 100%);color:#fff;text-decoration:none;
+      border-radius:12px;padding:14px 22px;font:800 16px/1 system-ui;box-shadow:0 10px 24px rgba(4,196,107,.4);
+    }
+    #tb-spin .tb-cta:hover{filter:brightness(1.05)}
+    #tb-spin .tb-badge{display:inline-block;background:#fef3c7;color:#92400e;border-radius:999px;padding:6px 12px;
+      font:700 12px/1 system-ui;margin-top:10px}
+    @keyframes tbFade{from{opacity:0}to{opacity:1}}
+    @keyframes tbPop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  </style>
 
   <div class="tb-card">
     <div class="tb-title">🎡 Spin & Win with Testbook</div>
-    <div class="tb-sub">Spin to win amazing rewards!</div>
+    <div class="tb-sub">Spin for exclusive rewards. Redeem in the Testbook App.</div>
 
     <div class="tb-wheel-wrap">
       <div class="tb-pointer"></div>
-      <canvas id="tb-wheel" width="420" height="420"></canvas>
+      <canvas id="tb-wheel" width="420" height="420" aria-label="Spin wheel"></canvas>
     </div>
 
     <button id="tb-spin-btn" class="tb-btn">🚀 Spin Now</button>
     <div id="tb-result" class="tb-result"></div>
   </div>
 
-  <!-- Popup -->
-  <div id="tb-pop" class="tb-pop">
+  <!-- ✅ Popup -->
+  <div id="tb-pop" class="tb-pop" role="dialog" aria-modal="true">
     <div class="tb-pop-card">
-      <button class="tb-x" type="button">✖</button>
-      <div style="font-size:64px;margin-bottom:10px;">🎉</div>
+      <button class="tb-x" type="button" aria-label="Close">✖</button>
+      <div style="font-size:64px;line-height:1;margin-bottom:10px;">🎉</div>
       <div class="tb-pop-title">Congratulations!</div>
-      <div id="tb-reward-text" class="tb-reward">✅ Reward</div>
-      <div class="tb-desc">Download the Testbook App to claim your prize.</div>
-      <a class="tb-cta" href="https://testbook.test-app.link/SUPERPASS_NEWS" target="_blank">📲 Download App</a>
+      <div id="tb-reward-text" class="tb-reward">✅ Reward Unlocked</div>
+      <div class="tb-desc">Download the <b>Testbook App</b> to redeem your prize and access premium study materials.</div>
+      <a id="tb-cta" class="tb-cta" target="_blank" href="https://testbook.test-app.link/SUPERPASS_NEWS">
+        📲 Download Testbook App
+      </a>
+      <div class="tb-badge">✨ Limited time offer</div>
     </div>
   </div>
 
-  <!-- Audio -->
+  <!-- 🔊 Sounds -->
   <audio id="spin-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wheel-spin-2014.mp3"></audio>
   <audio id="win-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
-  <audio id="bg-music" preload="auto" loop src="https://cdn.pixabay.com/download/audio/2022/10/26/audio_708dcce08c.mp3?filename=fun-game-loop-141117.mp3"></audio>
 
+  <!-- 🔁 JS -->
   <script>
-    (function () {
+    (function(){
       const APP_LINK = "https://testbook.test-app.link/SUPERPASS_NEWS";
       const SEGMENTS = [
-        { text: "🎓 100% Free Coaching", color: "#8B5CF6" },
+        { text: "🎓 Get a Chance to Win 100% Free Coaching", color: "#8B5CF6" },
         { text: "🎁 ₹500 Amazon Coupon", color: "#EC4899" },
-        { text: "📚 Free Study Material", color: "#F59E0B" },
-        { text: "💰 ₹500 Cashback", color: "#10B981" },
-        { text: "✨ Coaching @ ₹1", color: "#3B82F6" },
-        { text: "🙏 Try Again", color: "#9CA3AF" }
+        { text: "📚 Get Any Free Study Material", color: "#F59E0B" },
+        { text: "💰 Flat ₹500 Cashback on Coaching", color: "#10B981" },
+        { text: "✨ Enrol in any Coaching with ₹1", color: "#3B82F6" }
       ];
 
-      function run() {
-        const canvas = document.getElementById("tb-wheel"),
-              spinBtn = document.getElementById("tb-spin-btn"),
-              result = document.getElementById("tb-result"),
-              popup = document.getElementById("tb-pop"),
-              rewardText = document.getElementById("tb-reward-text"),
-              closeBtn = document.querySelector(".tb-x"),
-              spinSound = document.getElementById("spin-sound"),
-              winSound = document.getElementById("win-sound"),
-              bgMusic = document.getElementById("bg-music");
+      function run(){
+        const canvas = document.getElementById("tb-wheel");
+        const spinBtn = document.getElementById("tb-spin-btn");
+        const result = document.getElementById("tb-result");
+        const popup = document.getElementById("tb-pop");
+        const rewardEl = document.getElementById("tb-reward-text");
+        const closeBtn = document.querySelector(".tb-x");
+        const spinSound = document.getElementById("spin-sound");
+        const winSound = document.getElementById("win-sound");
 
-        const ctx = canvas.getContext("2d"), dpr = window.devicePixelRatio || 1;
-        canvas.width *= dpr; canvas.height *= dpr; ctx.scale(dpr, dpr);
+        const ctx = canvas.getContext("2d");
+        const dpr = window.devicePixelRatio || 1;
+        const base = Math.min(canvas.width, canvas.height);
+        canvas.width = base * dpr;
+        canvas.height = base * dpr;
+        canvas.style.width = base + "px";
+        canvas.style.height = base + "px";
+        ctx.scale(dpr, dpr);
 
-        const size = 420, cx = size / 2, radius = 200;
-        const slice = 2 * Math.PI / SEGMENTS.length;
+        const size = base;
+        const cx = size / 2;
+        const cy = size / 2;
+        const radius = (size / 2) - 20;
+        const slice = (2 * Math.PI) / SEGMENTS.length;
 
         function draw(rotation = 0) {
           ctx.clearRect(0, 0, size, size);
-          ctx.save(); ctx.translate(cx, cx); ctx.rotate(rotation);
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(rotation);
+          ctx.lineWidth = 3;
           for (let i = 0; i < SEGMENTS.length; i++) {
             const start = i * slice, end = start + slice;
-            ctx.beginPath(); ctx.moveTo(0, 0);
-            ctx.arc(0, 0, radius, start, end); ctx.closePath();
-            ctx.fillStyle = SEGMENTS[i].color; ctx.fill();
-            ctx.strokeStyle = "#fff"; ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, radius, start, end);
+            ctx.closePath();
+            ctx.fillStyle = SEGMENTS[i].color;
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.stroke();
 
             ctx.save();
             ctx.rotate(start + slice / 2);
-            ctx.fillStyle = "#fff"; ctx.font = "bold 14px sans-serif";
+            ctx.fillStyle = "#fff";
+            ctx.font = "600 14px system-ui";
             ctx.textAlign = "center";
-            const words = SEGMENTS[i].text.split(" ");
-            const lineHeight = 18;
-            words.forEach((w, j) => {
-              ctx.fillText(w, radius * 0.7, -lineHeight * (words.length - j - 1));
-            });
+            const text = SEGMENTS[i].text;
+            const maxW = radius * 0.65;
+            const words = text.split(" ");
+            let line = "", lines = [];
+            for (const w of words) {
+              const test = (line ? line + " " : "") + w;
+              if (ctx.measureText(test).width > maxW && line) {
+                lines.push(line); line = w;
+              } else {
+                line = test;
+              }
+            }
+            lines.push(line);
+            const lh = 18, startY = -(lines.length - 1) * lh / 2;
+            lines.forEach((ln, idx) => ctx.fillText(ln, radius * 0.65, startY + idx * lh));
             ctx.restore();
           }
           ctx.restore();
         }
 
         let rotation = 0, velocity = 0, spinning = false;
-
         function animate() {
           if (!spinning) return;
           rotation += velocity * Math.PI / 180;
           velocity *= 0.985;
           if (velocity < 0.02) {
-            spinning = false; finish();
+            spinning = false;
+            finish();
           } else {
             requestAnimationFrame(animate);
           }
@@ -108,11 +178,14 @@
         }
 
         function startSpin() {
-          resumeAudio(); // 🔊 required for W3Schools
+          if (spinning) return;
           spinning = true;
-          spinSound.currentTime = 0; spinSound.play();
-          velocity = 25 + Math.random() * 15;
+          spinSound.currentTime = 0;
+          spinSound.play();
+          result.textContent = "";
+          result.style.color = "#1e293b";
           spinBtn.disabled = true;
+          velocity = 25 + Math.random() * 15;
           requestAnimationFrame(animate);
         }
 
@@ -122,39 +195,25 @@
           const idx = Math.floor(norm / slice);
           const prize = SEGMENTS[idx];
 
-          winSound.currentTime = 0; winSound.play();
+          winSound.currentTime = 0;
+          winSound.play();
 
-          if (!prize.text.includes("Try Again")) {
-            rewardText.textContent = prize.text;
-            popup.classList.add("show");
-          } else {
-            result.textContent = "🙏 Try Again!";
-          }
-
+          result.textContent = "You won: " + prize.text;
+          rewardEl.textContent = prize.text;
+          popup.classList.add("show");
           spinBtn.disabled = false;
         }
 
         function closePop() { popup.classList.remove("show"); }
 
-        function resumeAudio() {
-          const ac = new (window.AudioContext || window.webkitAudioContext)();
-          if (ac.state === 'suspended') {
-            ac.resume();
-          }
-          bgMusic.play().catch(() => {});
-        }
-
         draw(0);
         spinBtn.addEventListener("click", startSpin);
         closeBtn.addEventListener("click", closePop);
+        popup.addEventListener("click", function (e) { if (e.target === popup) closePop(); });
       }
 
-      document.readyState === "loading"
-        ? document.addEventListener("DOMContentLoaded", run)
-        : run();
+      if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", run); }
+      else { run(); }
     })();
   </script>
 </div>
-
-</body>
-</html>
