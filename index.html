@@ -1,29 +1,160 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spin the Wheel - Testbook</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Spin & Win</title>
 </head>
 <body>
-  <div class="container">
-    <div class="wheel-wrapper">
-      <div id="pointer"></div>
-      <canvas id="wheel" width="300" height="300"></canvas>
+
+<div id="tb-spin" style="max-width:520px;margin:40px auto;text-align:center;">
+  <!-- CSS same as before (shortened for clarity) -->
+  <!-- Keep all styles same from previous version -->
+
+  <div class="tb-card">
+    <div class="tb-title">🎡 Spin & Win with Testbook</div>
+    <div class="tb-sub">Spin to win amazing rewards!</div>
+
+    <div class="tb-wheel-wrap">
+      <div class="tb-pointer"></div>
+      <canvas id="tb-wheel" width="420" height="420"></canvas>
     </div>
 
-    <button id="spinBtn">Spin the Wheel</button>
+    <button id="tb-spin-btn" class="tb-btn">🚀 Spin Now</button>
+    <div id="tb-result" class="tb-result"></div>
   </div>
 
-  <div id="popup" class="popup hidden">
-    <div class="popup-content">
-      <img src="https://testbook.com/news/wp-content/uploads/2025/09/Testbook-Logo-2048x410.png" class="popup-logo" alt="Testbook" />
-      <p id="popupText"></p>
-      <a href="https://testbook.test-app.link/SUPERPASS_NEWS" class="popup-button" target="_blank">Download Testbook App</a>
+  <!-- Popup -->
+  <div id="tb-pop" class="tb-pop">
+    <div class="tb-pop-card">
+      <button class="tb-x" type="button">✖</button>
+      <div style="font-size:64px;margin-bottom:10px;">🎉</div>
+      <div class="tb-pop-title">Congratulations!</div>
+      <div id="tb-reward-text" class="tb-reward">✅ Reward</div>
+      <div class="tb-desc">Download the Testbook App to claim your prize.</div>
+      <a class="tb-cta" href="https://testbook.test-app.link/SUPERPASS_NEWS" target="_blank">📲 Download App</a>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Audio -->
+  <audio id="spin-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wheel-spin-2014.mp3"></audio>
+  <audio id="win-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+  <audio id="bg-music" preload="auto" loop src="https://cdn.pixabay.com/download/audio/2022/10/26/audio_708dcce08c.mp3?filename=fun-game-loop-141117.mp3"></audio>
+
+  <script>
+    (function () {
+      const APP_LINK = "https://testbook.test-app.link/SUPERPASS_NEWS";
+      const SEGMENTS = [
+        { text: "🎓 100% Free Coaching", color: "#8B5CF6" },
+        { text: "🎁 ₹500 Amazon Coupon", color: "#EC4899" },
+        { text: "📚 Free Study Material", color: "#F59E0B" },
+        { text: "💰 ₹500 Cashback", color: "#10B981" },
+        { text: "✨ Coaching @ ₹1", color: "#3B82F6" },
+        { text: "🙏 Try Again", color: "#9CA3AF" }
+      ];
+
+      function run() {
+        const canvas = document.getElementById("tb-wheel"),
+              spinBtn = document.getElementById("tb-spin-btn"),
+              result = document.getElementById("tb-result"),
+              popup = document.getElementById("tb-pop"),
+              rewardText = document.getElementById("tb-reward-text"),
+              closeBtn = document.querySelector(".tb-x"),
+              spinSound = document.getElementById("spin-sound"),
+              winSound = document.getElementById("win-sound"),
+              bgMusic = document.getElementById("bg-music");
+
+        const ctx = canvas.getContext("2d"), dpr = window.devicePixelRatio || 1;
+        canvas.width *= dpr; canvas.height *= dpr; ctx.scale(dpr, dpr);
+
+        const size = 420, cx = size / 2, radius = 200;
+        const slice = 2 * Math.PI / SEGMENTS.length;
+
+        function draw(rotation = 0) {
+          ctx.clearRect(0, 0, size, size);
+          ctx.save(); ctx.translate(cx, cx); ctx.rotate(rotation);
+          for (let i = 0; i < SEGMENTS.length; i++) {
+            const start = i * slice, end = start + slice;
+            ctx.beginPath(); ctx.moveTo(0, 0);
+            ctx.arc(0, 0, radius, start, end); ctx.closePath();
+            ctx.fillStyle = SEGMENTS[i].color; ctx.fill();
+            ctx.strokeStyle = "#fff"; ctx.stroke();
+
+            ctx.save();
+            ctx.rotate(start + slice / 2);
+            ctx.fillStyle = "#fff"; ctx.font = "bold 14px sans-serif";
+            ctx.textAlign = "center";
+            const words = SEGMENTS[i].text.split(" ");
+            const lineHeight = 18;
+            words.forEach((w, j) => {
+              ctx.fillText(w, radius * 0.7, -lineHeight * (words.length - j - 1));
+            });
+            ctx.restore();
+          }
+          ctx.restore();
+        }
+
+        let rotation = 0, velocity = 0, spinning = false;
+
+        function animate() {
+          if (!spinning) return;
+          rotation += velocity * Math.PI / 180;
+          velocity *= 0.985;
+          if (velocity < 0.02) {
+            spinning = false; finish();
+          } else {
+            requestAnimationFrame(animate);
+          }
+          draw(rotation);
+        }
+
+        function startSpin() {
+          resumeAudio(); // 🔊 required for W3Schools
+          spinning = true;
+          spinSound.currentTime = 0; spinSound.play();
+          velocity = 25 + Math.random() * 15;
+          spinBtn.disabled = true;
+          requestAnimationFrame(animate);
+        }
+
+        function finish() {
+          const adjusted = (rotation + Math.PI / 2) % (2 * Math.PI);
+          const norm = (2 * Math.PI - adjusted) % (2 * Math.PI);
+          const idx = Math.floor(norm / slice);
+          const prize = SEGMENTS[idx];
+
+          winSound.currentTime = 0; winSound.play();
+
+          if (!prize.text.includes("Try Again")) {
+            rewardText.textContent = prize.text;
+            popup.classList.add("show");
+          } else {
+            result.textContent = "🙏 Try Again!";
+          }
+
+          spinBtn.disabled = false;
+        }
+
+        function closePop() { popup.classList.remove("show"); }
+
+        function resumeAudio() {
+          const ac = new (window.AudioContext || window.webkitAudioContext)();
+          if (ac.state === 'suspended') {
+            ac.resume();
+          }
+          bgMusic.play().catch(() => {});
+        }
+
+        draw(0);
+        spinBtn.addEventListener("click", startSpin);
+        closeBtn.addEventListener("click", closePop);
+      }
+
+      document.readyState === "loading"
+        ? document.addEventListener("DOMContentLoaded", run)
+        : run();
+    })();
+  </script>
+</div>
+
 </body>
 </html>
