@@ -1,6 +1,16 @@
-<!-- Testbook Spin & Win (FINAL with Pointer Fix) -->
-<div id="tb-spin" style="max-width:520px;margin:40px auto;text-align:center;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spin & Win - Testbook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
     #tb-spin * { box-sizing: border-box; }
     #tb-spin .tb-card {
       background:#fff;border-radius:20px;padding:28px 22px;
@@ -51,123 +61,99 @@
     @keyframes tbFade{from{opacity:0}to{opacity:1}}
     @keyframes tbPop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
   </style>
+</head>
 
-  <div class="tb-card">
-    <div class="tb-title">🎡 Spin & Win with Testbook</div>
-    <div class="tb-sub">Spin for exclusive rewards. Redeem in the Testbook App.</div>
-
-    <div class="tb-wheel-wrap">
-      <div class="tb-pointer"></div>
-      <canvas id="tb-wheel" width="420" height="420" aria-label="Spin wheel"></canvas>
+<body>
+  <!-- Spin & Win Component -->
+  <div id="tb-spin">
+    <div class="tb-card">
+      <div class="tb-title">🎡 Spin & Win with Testbook</div>
+      <div class="tb-sub">Spin to win amazing rewards!</div>
+      <div class="tb-wheel-wrap">
+        <div class="tb-pointer"></div>
+        <canvas id="tb-wheel" width="420" height="420"></canvas>
+      </div>
+      <button id="tb-spin-btn" class="tb-btn">🚀 Spin Now</button>
+      <div id="tb-result" class="tb-result"></div>
     </div>
 
-    <button id="tb-spin-btn" class="tb-btn">🚀 Spin Now</button>
-    <div id="tb-result" class="tb-result"></div>
-  </div>
-
-  <div id="tb-pop" class="tb-pop" role="dialog" aria-modal="true">
-    <div class="tb-pop-card">
-      <button class="tb-x" type="button" aria-label="Close">✖</button>
-      <div style="font-size:64px;line-height:1;margin-bottom:10px;">🎉</div>
-      <div class="tb-pop-title">Congratulations!</div>
-      <div id="tb-reward-text" class="tb-reward">✅ Reward Unlocked</div>
-      <div class="tb-desc">Download the <b>Testbook App</b> to redeem your prize and access premium study materials.</div>
-      <a id="tb-cta" class="tb-cta" target="_blank" href="https://testbook.test-app.link/SUPERPASS_NEWS">
-        📲 Download Testbook App
-      </a>
-      <div class="tb-badge">✨ Limited time offer</div>
+    <!-- Popup -->
+    <div id="tb-pop" class="tb-pop">
+      <div class="tb-pop-card">
+        <button class="tb-x" type="button">✖</button>
+        <div style="font-size:64px;margin-bottom:10px;">🎉</div>
+        <div class="tb-pop-title">Congratulations!</div>
+        <div id="tb-reward-text" class="tb-reward">✅ Reward</div>
+        <div class="tb-desc">Download the Testbook App to claim your prize.</div>
+        <a class="tb-cta" href="https://testbook.test-app.link/SUPERPASS_NEWS" target="_blank">📲 Download App</a>
+      </div>
     </div>
   </div>
 
+  <!-- Sounds -->
+  <audio id="spin-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wheel-spin-2014.mp3"></audio>
+  <audio id="win-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+
+  <!-- Script -->
   <script>
-    (function(){
-      const APP_LINK = "https://testbook.test-app.link/SUPERPASS_NEWS";
+    (function () {
       const SEGMENTS = [
-        { text: "🎓 Get a Chance to Win 100% Free Coaching", color: "#8B5CF6" },
+        { text: "🎓 100% Free Coaching", color: "#8B5CF6" },
         { text: "🎁 ₹500 Amazon Coupon", color: "#EC4899" },
-        { text: "📚 Get Any Free Study Material", color: "#F59E0B" },
-        { text: "💰 Flat ₹500 Cashback on Coaching", color: "#10B981" },
-        { text: "✨ Enrol in any Coaching with ₹1", color: "#3B82F6" }
+        { text: "📚 Free Study Material", color: "#F59E0B" },
+        { text: "💰 ₹500 Cashback", color: "#10B981" },
+        { text: "✨ Coaching @ ₹1", color: "#3B82F6" },
+        { text: "🙏 Try Again", color: "#9CA3AF" }
       ];
 
-      const BRAND_COLORS = { blue:"#0A5FFF", teal:"#04C46B", red:"#e11d48" };
+      function run() {
+        const canvas = document.getElementById("tb-wheel"),
+              spinBtn = document.getElementById("tb-spin-btn"),
+              result = document.getElementById("tb-result"),
+              popup = document.getElementById("tb-pop"),
+              rewardText = document.getElementById("tb-reward-text"),
+              closeBtn = document.querySelector(".tb-x"),
+              spinSound = document.getElementById("spin-sound"),
+              winSound = document.getElementById("win-sound");
 
-      function run(){
-        const root = document.getElementById("tb-spin");
-        const canvas = root.querySelector("#tb-wheel");
-        const spinBtn = root.querySelector("#tb-spin-btn");
-        const result = root.querySelector("#tb-result");
-        const popup = root.querySelector("#tb-pop");
-        const rewardEl = root.querySelector("#tb-reward-text");
-        const closeBtn = root.querySelector(".tb-x");
-        const cta = root.querySelector("#tb-cta");
-        cta.href = APP_LINK;
+        const ctx = canvas.getContext("2d"), dpr = window.devicePixelRatio || 1;
+        canvas.width *= dpr; canvas.height *= dpr; ctx.scale(dpr, dpr);
 
-        const ctx = canvas.getContext("2d");
-        const dpr = window.devicePixelRatio || 1;
-        const base = Math.min(canvas.width, canvas.height);
-        canvas.width = base * dpr;
-        canvas.height = base * dpr;
-        canvas.style.width = base + "px";
-        canvas.style.height = base + "px";
-        ctx.scale(dpr, dpr);
-
-        const size = base;
-        const cx = size / 2;
-        const cy = size / 2;
-        const radius = (size / 2) - 20;
-        const slice = (2 * Math.PI) / SEGMENTS.length;
+        const size = 420, cx = size / 2, radius = 200;
+        const slice = 2 * Math.PI / SEGMENTS.length;
 
         function draw(rotation = 0) {
           ctx.clearRect(0, 0, size, size);
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(rotation);
-          ctx.lineWidth = 3;
+          ctx.save(); ctx.translate(cx, cx); ctx.rotate(rotation);
           for (let i = 0; i < SEGMENTS.length; i++) {
             const start = i * slice, end = start + slice;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.arc(0, 0, radius, start, end);
-            ctx.closePath();
-            ctx.fillStyle = SEGMENTS[i].color;
-            ctx.fill();
-            ctx.strokeStyle = "#fff";
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, 0);
+            ctx.arc(0, 0, radius, start, end); ctx.closePath();
+            ctx.fillStyle = SEGMENTS[i].color; ctx.fill();
+            ctx.strokeStyle = "#fff"; ctx.stroke();
 
             ctx.save();
             ctx.rotate(start + slice / 2);
-            ctx.fillStyle = "#fff";
-            ctx.font = "600 14px system-ui";
+            ctx.fillStyle = "#fff"; ctx.font = "bold 14px sans-serif";
             ctx.textAlign = "center";
-            const text = SEGMENTS[i].text;
-            const maxW = radius * 0.65;
-            const words = text.split(" ");
-            let line = "", lines = [];
-            for (const w of words) {
-              const test = (line ? line + " " : "") + w;
-              if (ctx.measureText(test).width > maxW && line) {
-                lines.push(line); line = w;
-              } else {
-                line = test;
-              }
-            }
-            lines.push(line);
-            const lh = 18, startY = -(lines.length - 1) * lh / 2;
-            lines.forEach((ln, idx) => ctx.fillText(ln, radius * 0.65, startY + idx * lh));
+            const words = SEGMENTS[i].text.split(" ");
+            const lineHeight = 18;
+            words.forEach((w, j) => {
+              ctx.fillText(w, radius * 0.7, -lineHeight * (words.length - j - 1));
+            });
             ctx.restore();
           }
           ctx.restore();
         }
 
         let rotation = 0, velocity = 0, spinning = false;
+
         function animate() {
           if (!spinning) return;
           rotation += velocity * Math.PI / 180;
-          velocity *= 0.985;
+          velocity *= 0.992; // 🕗 smoother and slower = ~8 seconds
           if (velocity < 0.02) {
-            spinning = false;
-            finish();
+            spinning = false; finish();
           } else {
             requestAnimationFrame(animate);
           }
@@ -177,24 +163,27 @@
         function startSpin() {
           if (spinning) return;
           spinning = true;
-          result.textContent = "";
-          result.style.color = "#1e293b";
+          spinSound.currentTime = 0; spinSound.play();
+          velocity = 40 + Math.random() * 5; // ⏱️ higher initial speed
           spinBtn.disabled = true;
-          velocity = 25 + Math.random() * 15;
           requestAnimationFrame(animate);
         }
 
         function finish() {
-          // ✅ FIXED POINTER-TO-REWARD ALIGNMENT LOGIC
           const adjusted = (rotation + Math.PI / 2) % (2 * Math.PI);
           const norm = (2 * Math.PI - adjusted) % (2 * Math.PI);
           const idx = Math.floor(norm / slice);
           const prize = SEGMENTS[idx];
 
-          result.textContent = "You won: " + prize.text;
-          result.style.color = BRAND_COLORS.teal;
-          rewardEl.textContent = prize.text;
-          popup.classList.add("show");
+          winSound.currentTime = 0; winSound.play();
+
+          if (!prize.text.includes("Try Again")) {
+            rewardText.textContent = prize.text;
+            popup.classList.add("show");
+          } else {
+            result.textContent = "🙏 Try Again!";
+          }
+
           spinBtn.disabled = false;
         }
 
@@ -203,11 +192,12 @@
         draw(0);
         spinBtn.addEventListener("click", startSpin);
         closeBtn.addEventListener("click", closePop);
-        popup.addEventListener("click", function (e) { if (e.target === popup) closePop(); });
       }
 
-      if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", run); }
-      else { run(); }
+      document.readyState === "loading"
+        ? document.addEventListener("DOMContentLoaded", run)
+        : run();
     })();
   </script>
-</div>
+</body>
+</html>
