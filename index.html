@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,13 +7,15 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <img src="https://testbook.com/news/wp-content/uploads/2025/09/Testbook-Logo-2048x410.png" alt="Logo" class="logo" />
-  <div class="wheel-container">
+  <div class="wheel-wrapper">
     <div id="pointer"></div>
-    <canvas id="wheel" width="400" height="400"></canvas>
+    <canvas id="wheel" width="300" height="300"></canvas>
     <button id="spinBtn">Spin the Wheel</button>
-    <div id="result" class="hidden"></div>
-    <a href="https://testbook.test-app.link/SUPERPASS_NEWS" target="_blank" class="download-btn">Download Testbook App</a>
+    <div id="result" class="hidden">
+      <img src="https://testbook.com/news/wp-content/uploads/2025/09/Testbook-Logo-2048x410.png" alt="Testbook Logo" class="popup-logo"/>
+      <p id="resultText"></p>
+      <a href="https://testbook.test-app.link/SUPERPASS_NEWS" target="_blank" class="download-btn">Download Testbook App</a>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
