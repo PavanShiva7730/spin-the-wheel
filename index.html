@@ -96,108 +96,116 @@
 
   <!-- Script -->
   <script>
-    (function () {
-      const SEGMENTS = [
-        { text: "🎓 100% Free Coaching", color: "#8B5CF6" },
-        { text: "🎁 ₹500 Amazon Coupon", color: "#EC4899" },
-        { text: "📚 Free Study Material", color: "#F59E0B" },
-        { text: "💰 ₹500 Cashback", color: "#10B981" },
-        { text: "✨ Coaching @ ₹1", color: "#3B82F6" },
-        { text: "🙏 Try Again", color: "#9CA3AF" }
-      ];
+(function () {
+  const SEGMENTS = [
+    { text: "🎓 100% Free Coaching", color: "#8B5CF6" },
+    { text: "🎁 ₹500 Amazon Coupon", color: "#EC4899" },
+    { text: "📚 Free Study Material", color: "#F59E0B" },
+    { text: "💰 ₹500 Cashback", color: "#10B981" },
+    { text: "✨ Coaching @ ₹1", color: "#3B82F6" },
+    { text: "🙏 Try Again", color: "#9CA3AF" }
+  ];
 
-      function run() {
-        const canvas = document.getElementById("tb-wheel"),
-              spinBtn = document.getElementById("tb-spin-btn"),
-              result = document.getElementById("tb-result"),
-              popup = document.getElementById("tb-pop"),
-              rewardText = document.getElementById("tb-reward-text"),
-              closeBtn = document.querySelector(".tb-x"),
-              spinSound = document.getElementById("spin-sound"),
-              winSound = document.getElementById("win-sound");
+  function run() {
+    const canvas = document.getElementById("tb-wheel"),
+          spinBtn = document.getElementById("tb-spin-btn"),
+          result = document.getElementById("tb-result"),
+          popup = document.getElementById("tb-pop"),
+          rewardText = document.getElementById("tb-reward-text"),
+          closeBtn = document.querySelector(".tb-x"),
+          spinSound = document.getElementById("spin-sound"),
+          winSound = document.getElementById("win-sound");
 
-        const ctx = canvas.getContext("2d"), dpr = window.devicePixelRatio || 1;
-        canvas.width *= dpr; canvas.height *= dpr; ctx.scale(dpr, dpr);
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 340 * dpr;  // Reduced size
+    canvas.height = 340 * dpr;
+    ctx.scale(dpr, dpr);
 
-        const size = 420, cx = size / 2, radius = 200;
-        const slice = 2 * Math.PI / SEGMENTS.length;
+    const size = 340;
+    const cx = size / 2;
+    const radius = 160;
+    const slice = 2 * Math.PI / SEGMENTS.length;
 
-        function draw(rotation = 0) {
-          ctx.clearRect(0, 0, size, size);
-          ctx.save(); ctx.translate(cx, cx); ctx.rotate(rotation);
-          for (let i = 0; i < SEGMENTS.length; i++) {
-            const start = i * slice, end = start + slice;
-            ctx.beginPath(); ctx.moveTo(0, 0);
-            ctx.arc(0, 0, radius, start, end); ctx.closePath();
-            ctx.fillStyle = SEGMENTS[i].color; ctx.fill();
-            ctx.strokeStyle = "#fff"; ctx.stroke();
+    function draw(rotation = 0) {
+      ctx.clearRect(0, 0, size, size);
+      ctx.save(); ctx.translate(cx, cx); ctx.rotate(rotation);
+      for (let i = 0; i < SEGMENTS.length; i++) {
+        const start = i * slice, end = start + slice;
+        ctx.beginPath(); ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, start, end); ctx.closePath();
+        ctx.fillStyle = SEGMENTS[i].color; ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.stroke();
 
-            ctx.save();
-            ctx.rotate(start + slice / 2);
-            ctx.fillStyle = "#fff"; ctx.font = "bold 14px sans-serif";
-            ctx.textAlign = "center";
-            const words = SEGMENTS[i].text.split(" ");
-            const lineHeight = 18;
-            words.forEach((w, j) => {
-              ctx.fillText(w, radius * 0.7, -lineHeight * (words.length - j - 1));
-            });
-            ctx.restore();
-          }
-          ctx.restore();
-        }
+        ctx.save();
+        ctx.rotate(start + slice / 2);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "center";
+        const words = SEGMENTS[i].text.split(" ");
+        const lineHeight = 16;
+        words.forEach((w, j) => {
+          ctx.fillText(w, radius * 0.7, -lineHeight * (words.length - j - 1));
+        });
+        ctx.restore();
+      }
+      ctx.restore();
+    }
 
-        let rotation = 0, velocity = 0, spinning = false;
+    let rotation = 0, velocity = 0, spinning = false;
 
-        function animate() {
-          if (!spinning) return;
-          rotation += velocity * Math.PI / 180;
-          velocity *= 0.992; // 🕗 smoother and slower = ~8 seconds
-          if (velocity < 0.02) {
-            spinning = false; finish();
-          } else {
-            requestAnimationFrame(animate);
-          }
-          draw(rotation);
-        }
+    function animate() {
+      if (!spinning) return;
+      rotation += velocity * Math.PI / 180;
+      velocity *= 0.984; // 💡 Faster slowdown for 8–10 sec
+      if (velocity < 0.02) {
+        spinning = false;
+        finish();
+      } else {
+        requestAnimationFrame(animate);
+      }
+      draw(rotation);
+    }
 
-        function startSpin() {
-          if (spinning) return;
-          spinning = true;
-          spinSound.currentTime = 0; spinSound.play();
-          velocity = 40 + Math.random() * 5; // ⏱️ higher initial speed
-          spinBtn.disabled = true;
-          requestAnimationFrame(animate);
-        }
+    function startSpin() {
+      if (spinning) return;
+      spinning = true;
+      spinSound.currentTime = 0; spinSound.play();
+      velocity = 45 + Math.random() * 5; // ⏱️ higher starting speed
+      spinBtn.disabled = true;
+      requestAnimationFrame(animate);
+    }
 
-        function finish() {
-          const adjusted = (rotation + Math.PI / 2) % (2 * Math.PI);
-          const norm = (2 * Math.PI - adjusted) % (2 * Math.PI);
-          const idx = Math.floor(norm / slice);
-          const prize = SEGMENTS[idx];
+    function finish() {
+      const adjusted = (rotation + Math.PI / 2) % (2 * Math.PI);
+      const norm = (2 * Math.PI - adjusted) % (2 * Math.PI);
+      const idx = Math.floor(norm / slice);
+      const prize = SEGMENTS[idx];
 
-          winSound.currentTime = 0; winSound.play();
+      winSound.currentTime = 0; winSound.play();
 
-          if (!prize.text.includes("Try Again")) {
-            rewardText.textContent = prize.text;
-            popup.classList.add("show");
-          } else {
-            result.textContent = "🙏 Try Again!";
-          }
-
-          spinBtn.disabled = false;
-        }
-
-        function closePop() { popup.classList.remove("show"); }
-
-        draw(0);
-        spinBtn.addEventListener("click", startSpin);
-        closeBtn.addEventListener("click", closePop);
+      if (!prize.text.includes("Try Again")) {
+        rewardText.textContent = prize.text;
+        popup.classList.add("show");
+      } else {
+        result.textContent = "🙏 Try Again!";
       }
 
-      document.readyState === "loading"
-        ? document.addEventListener("DOMContentLoaded", run)
-        : run();
-    })();
-  </script>
+      spinBtn.disabled = false;
+    }
+
+    function closePop() {
+      popup.classList.remove("show");
+    }
+
+    draw(0);
+    spinBtn.addEventListener("click", startSpin);
+    closeBtn.addEventListener("click", closePop);
+  }
+
+  document.readyState === "loading"
+    ? document.addEventListener("DOMContentLoaded", run)
+    : run();
+})();
+</script>
 </body>
 </html>
